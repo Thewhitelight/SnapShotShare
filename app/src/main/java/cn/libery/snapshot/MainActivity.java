@@ -16,6 +16,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
+import java.util.IllegalFormatFlagsException;
+
 public class MainActivity extends AppCompatActivity {
 
     private SnapShotListenerManager mManager;
@@ -24,13 +26,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        checkStoragePermission();
         setContentView(R.layout.activity_main);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onResume() {
+        super.onResume();
+        checkStoragePermission();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
         if (mManager != null) {
             mManager.stopListener();
         }
@@ -48,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initSnapShotManager() {
         mManager = new SnapShotListenerManager(this);
+        mManager.stopListener();
         mManager.startListener();
     }
 
