@@ -116,7 +116,7 @@ public class SnapShotListenerManager {
     /**
      * 处理监听到的资源
      */
-    private void handleMediaRowData(final String data, long dateTaken) {
+    private void handleMediaRowData(String data, long dateTaken) {
         if (checkScreenShot(data, dateTaken)) {
             Log.d(TAG, data + "&" + dateTaken);
             Intent intent = new Intent(mContext, SnapShotActivity.class);

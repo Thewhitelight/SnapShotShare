@@ -29,9 +29,15 @@ public class SnapShotActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         View view = LayoutInflater.from(this).inflate(R.layout.activity_sanpshot, null);
         setContentView(view);
-        ImageView image = (ImageView) findViewById(R.id.snap_shot_image);
-        String imageUri = getIntent().getStringExtra("snapshot_uri");
-        image.setImageURI(Uri.parse(imageUri));
+        final ImageView image = (ImageView) findViewById(R.id.snap_shot_image);
+        final String imageUri = getIntent().getStringExtra("snapshot_uri");
+        new Handler().postDelayed(new Runnable() {//fix 魅蓝note resolveUri failed on bad bitmap uri
+            @Override
+            public void run() {
+                image.setImageURI(Uri.parse(imageUri));
+
+            }
+        }, 200);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
