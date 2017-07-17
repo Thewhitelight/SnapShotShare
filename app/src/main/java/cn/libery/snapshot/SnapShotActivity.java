@@ -1,6 +1,10 @@
 package cn.libery.snapshot;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,7 +39,9 @@ public class SnapShotActivity extends AppCompatActivity {
             @Override
             public void run() {
                 image.setImageURI(Uri.parse(imageUri));
-
+//                Bitmap bitmap=drawableToBitmap(image.getDrawable());
+//                bitmap=addBitmap(bitmap,drawableToBitmap(getResources().getDrawable(R.mipmap.ic_launcher)));
+//                image.setImageBitmap(bitmap);
             }
         }, 200);
         view.setOnClickListener(new View.OnClickListener() {
@@ -51,13 +57,36 @@ public class SnapShotActivity extends AppCompatActivity {
             }
         });
         mHandler = new CountDownHandler(this);
-        mHandler.sendEmptyMessageDelayed(MSG_WHAT, 3000);
+        mHandler.sendEmptyMessageDelayed(MSG_WHAT, 5000);
     }
+
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        Bitmap bitmap = Bitmap.createBitmap(
+                drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(),
+                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+                        : Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mHandler.removeMessages(MSG_WHAT);
+    }
+
+    private Bitmap addBitmap(Bitmap first, Bitmap second) {
+        int width = Math.max(first.getWidth(), second.getWidth());
+        int height = first.getHeight() + second.getHeight();
+        Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(first, 0, 0, null);
+        canvas.drawBitmap(second, first.getHeight(), 0, null);
+        return result;
     }
 
     private static class CountDownHandler extends Handler {

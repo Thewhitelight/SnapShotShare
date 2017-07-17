@@ -48,14 +48,21 @@ public class SnapShotListenerManager {
         initManager();
     }
 
+    /**
+     * 初始化
+     */
     private void initManager() {
+        if (mContext == null) return;
         final Handler handler = new Handler(mContext.getMainLooper());
-
-        // 初始化
         mInternalObserver = new MediaContentObserver(MediaStore.Images.Media.INTERNAL_CONTENT_URI, handler);
         mExternalObserver = new MediaContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, handler);
+    }
 
-        // 添加监听
+    /**
+     * 添加监听
+     */
+    public void startListener() {
+        if (mContext == null) return;
         mContext.getContentResolver().registerContentObserver(
                 MediaStore.Images.Media.INTERNAL_CONTENT_URI,
                 false,
@@ -68,7 +75,11 @@ public class SnapShotListenerManager {
         );
     }
 
+    /**
+     * 注销监听
+     */
     public void stopListener() {
+        if (mContext == null) return;
         mContext.getContentResolver().unregisterContentObserver(mInternalObserver);
         mContext.getContentResolver().unregisterContentObserver(mExternalObserver);
     }
