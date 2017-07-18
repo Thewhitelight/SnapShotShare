@@ -5,14 +5,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,6 +24,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.logging.Logger;
 
 /**
  * Created by Libery on 2017/7/17.
@@ -44,7 +48,7 @@ public class SnapShotActivity extends AppCompatActivity {
             @Override
             public void run() {
                 bitmap = BitmapFactory.decodeFile(snapshotPath);
-                bitmap = addBitmap(bitmap, drawableToBitmap(getResources().getDrawable(R.mipmap.ic_launcher)));
+                bitmap = addBitmap(bitmap, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round));
                 image.setImageBitmap(bitmap);
                 image.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -70,9 +74,9 @@ public class SnapShotActivity extends AppCompatActivity {
     /**
      * 保存图片
      */
-    public static String saveImageToGallery(Bitmap bmp) {
+    public String saveImageToGallery(Bitmap bmp) {
         String fileName = System.currentTimeMillis() + ".jpeg";
-        File file = new File(Environment.getExternalStorageDirectory(), fileName);
+        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
         try {
             FileOutputStream fos = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -85,18 +89,6 @@ public class SnapShotActivity extends AppCompatActivity {
         return file.getAbsolutePath();
     }
 
-    public static Bitmap drawableToBitmap(Drawable drawable) {
-        Bitmap bitmap = Bitmap.createBitmap(
-                drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(),
-                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
-                        : Bitmap.Config.RGB_565);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        drawable.draw(canvas);
-        return bitmap;
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -107,10 +99,12 @@ public class SnapShotActivity extends AppCompatActivity {
      * 合成一张图片
      */
     private Bitmap addBitmap(Bitmap first, Bitmap second) {
+        if (first == null || second == null) return null;
         int width = Math.max(first.getWidth(), second.getWidth());
         int height = first.getHeight() + second.getHeight();
         Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
+        canvas.drawColor(Color.WHITE);
         canvas.drawBitmap(first, 0, 0, null);
         canvas.drawBitmap(second, 0, first.getHeight(), null);
         return result;
