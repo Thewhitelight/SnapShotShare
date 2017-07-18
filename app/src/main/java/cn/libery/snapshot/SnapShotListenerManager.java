@@ -105,18 +105,15 @@ public class SnapShotListenerManager {
 
             // 获取各列的索引
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            int dateTakenIndex = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATE_TAKEN);
 
             // 获取行数据
             String data = cursor.getString(dataIndex);
-            long dateTaken = cursor.getLong(dateTakenIndex);
 
             // 处理获取到的第一行数据
-            handleMediaRowData(data, dateTaken);
+            handleMediaRowData(data);
 
         } catch (Exception e) {
             e.printStackTrace();
-
         } finally {
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
@@ -127,21 +124,21 @@ public class SnapShotListenerManager {
     /**
      * 处理监听到的资源
      */
-    private void handleMediaRowData(String data, long dateTaken) {
-        if (checkScreenShot(data, dateTaken)) {
-            Log.d(TAG, data + "&" + dateTaken);
+    private void handleMediaRowData(String data) {
+        if (checkScreenShot(data)) {
+            Log.d(TAG, data);
             Intent intent = new Intent(mContext, SnapShotActivity.class);
-            intent.putExtra("snapshot_uri", data);
+            intent.putExtra("snapshot_path", data);
             mContext.startActivity(intent);
         } else {
-            Log.d(TAG, "Not screenshot event");
+            Log.d(TAG, "Not screenshot event:" + data);
         }
     }
 
     /**
      * 判断是否是截屏
      */
-    private boolean checkScreenShot(String data, long dateTaken) {
+    private boolean checkScreenShot(String data) {
         data = data.toLowerCase();
         // 判断图片路径是否含有指定的关键字之一, 如果有, 则认为当前截屏了
         for (String keyWork : KEYWORDS) {
@@ -159,7 +156,7 @@ public class SnapShotListenerManager {
 
         private Uri mContentUri;
 
-        public MediaContentObserver(Uri contentUri, Handler handler) {
+        MediaContentObserver(Uri contentUri, Handler handler) {
             super(handler);
             mContentUri = contentUri;
         }
@@ -171,4 +168,5 @@ public class SnapShotListenerManager {
             handleMediaContentChange(mContentUri);
         }
     }
+
 }

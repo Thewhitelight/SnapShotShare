@@ -3,10 +3,10 @@ package cn.libery.snapshot;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -18,7 +18,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -40,12 +39,11 @@ public class SnapShotActivity extends AppCompatActivity {
         View view = LayoutInflater.from(this).inflate(R.layout.activity_sanpshot, null);
         setContentView(view);
         final ImageView image = (ImageView) findViewById(R.id.snap_shot_image);
-        final String imageUri = getIntent().getStringExtra("snapshot_uri");
+        final String snapshotPath = getIntent().getStringExtra("snapshot_path");
         new Handler().postDelayed(new Runnable() {//fix 魅蓝note resolveUri failed on bad bitmap uri
             @Override
             public void run() {
-                image.setImageURI(Uri.parse(imageUri));
-                bitmap = drawableToBitmap(image.getDrawable());
+                bitmap = BitmapFactory.decodeFile(snapshotPath);
                 bitmap = addBitmap(bitmap, drawableToBitmap(getResources().getDrawable(R.mipmap.ic_launcher)));
                 image.setImageBitmap(bitmap);
                 image.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +67,9 @@ public class SnapShotActivity extends AppCompatActivity {
         mHandler.sendEmptyMessageDelayed(MSG_WHAT, 5000);
     }
 
+    /**
+     * 保存图片
+     */
     public static String saveImageToGallery(Bitmap bmp) {
         String fileName = System.currentTimeMillis() + ".jpeg";
         File file = new File(Environment.getExternalStorageDirectory(), fileName);
@@ -78,8 +79,6 @@ public class SnapShotActivity extends AppCompatActivity {
             fos.flush();
             fos.close();
             System.out.println("AbsPath:" + file.getAbsolutePath() + " CanPath:" + file.getCanonicalPath());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -104,6 +103,9 @@ public class SnapShotActivity extends AppCompatActivity {
         mHandler.removeMessages(MSG_WHAT);
     }
 
+    /**
+     * 合成一张图片
+     */
     private Bitmap addBitmap(Bitmap first, Bitmap second) {
         int width = Math.max(first.getWidth(), second.getWidth());
         int height = first.getHeight() + second.getHeight();
