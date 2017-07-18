@@ -5,6 +5,7 @@
     <uses-permission android:name="MediaStore.Images.Media.INTERNAL_CONTENT_URI"/>
     <uses-permission android:name="MediaStore.Images.Media.EXTERNAL_CONTENT_URI"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -23,6 +24,10 @@
         <activity
             android:name=".SnapShotActivity"
             android:theme="@style/TransparentTheme"/>
+        <activity
+            android:name=".SnapShotShareActivity"
+            android:theme="@style/TransparentTheme"/>
+
     </application>
 
 </manifest>

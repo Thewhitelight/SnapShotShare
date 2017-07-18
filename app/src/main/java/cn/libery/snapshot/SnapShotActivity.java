@@ -1,12 +1,14 @@
 package cn.libery.snapshot;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -14,8 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 /**
@@ -27,6 +32,7 @@ public class SnapShotActivity extends AppCompatActivity {
 
     private CountDownHandler mHandler;
     private static final int MSG_WHAT = 1;
+    Bitmap bitmap;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -39,9 +45,18 @@ public class SnapShotActivity extends AppCompatActivity {
             @Override
             public void run() {
                 image.setImageURI(Uri.parse(imageUri));
-//                Bitmap bitmap=drawableToBitmap(image.getDrawable());
-//                bitmap=addBitmap(bitmap,drawableToBitmap(getResources().getDrawable(R.mipmap.ic_launcher)));
-//                image.setImageBitmap(bitmap);
+                bitmap = drawableToBitmap(image.getDrawable());
+                bitmap = addBitmap(bitmap, drawableToBitmap(getResources().getDrawable(R.mipmap.ic_launcher)));
+                image.setImageBitmap(bitmap);
+                image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(final View v) {
+                        Intent i = new Intent(SnapShotActivity.this, SnapShotShareActivity.class);
+                        i.putExtra("snap_shot_share_path", saveImageToGallery(bitmap));
+                        startActivity(i);
+                        finish();
+                    }
+                });
             }
         }, 200);
         view.setOnClickListener(new View.OnClickListener() {
@@ -50,14 +65,25 @@ public class SnapShotActivity extends AppCompatActivity {
                 finish();
             }
         });
-        image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                Toast.makeText(SnapShotActivity.this, "分享", Toast.LENGTH_SHORT).show();
-            }
-        });
         mHandler = new CountDownHandler(this);
         mHandler.sendEmptyMessageDelayed(MSG_WHAT, 5000);
+    }
+
+    public static String saveImageToGallery(Bitmap bmp) {
+        String fileName = System.currentTimeMillis() + ".jpeg";
+        File file = new File(Environment.getExternalStorageDirectory(), fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+            System.out.println("AbsPath:" + file.getAbsolutePath() + " CanPath:" + file.getCanonicalPath());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file.getAbsolutePath();
     }
 
     public static Bitmap drawableToBitmap(Drawable drawable) {
@@ -72,7 +98,6 @@ public class SnapShotActivity extends AppCompatActivity {
         return bitmap;
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -85,7 +110,7 @@ public class SnapShotActivity extends AppCompatActivity {
         Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(first, 0, 0, null);
-        canvas.drawBitmap(second, first.getHeight(), 0, null);
+        canvas.drawBitmap(second, 0, first.getHeight(), null);
         return result;
     }
 
