@@ -51,8 +51,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSnapShotManager() {
-        mManager = new SnapShotListenerManager(this);
-        mManager.stopListener();
+        if (mManager != null) {
+            mManager.stopListener();
+        } else {
+            mManager = new SnapShotListenerManager(this);
+        }
         mManager.startListener();
     }
 
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                                 dialog.dismiss();
                             }
                         })
+                        .setCancelable(false)
                         .show();
             }
         }

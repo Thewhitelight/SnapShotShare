@@ -79,7 +79,7 @@ public class SnapShotActivity extends AppCompatActivity {
             fos.flush();
             fos.close();
             System.out.println("AbsPath:" + file.getAbsolutePath() + " CanPath:" + file.getCanonicalPath());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return file.getAbsolutePath();
