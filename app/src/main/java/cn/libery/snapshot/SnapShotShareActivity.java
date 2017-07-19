@@ -34,4 +34,10 @@ public class SnapShotShareActivity extends Activity {
         shareImage.setImageURI(Uri.parse(path));
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_start, R.anim.activity_finish);
+    }
+
 }
