@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,6 +21,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Logger;
 
 /**
  * Created by Libery on 2017/7/17.
@@ -30,7 +34,6 @@ public class SnapShotActivity extends AppCompatActivity {
 
     private CountDownHandler mHandler;
     private static final int MSG_WHAT = 1;
-    Bitmap bitmap;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -42,14 +45,15 @@ public class SnapShotActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {//fix 魅蓝note resolveUri failed on bad bitmap uri
             @Override
             public void run() {
-                bitmap = BitmapFactory.decodeFile(snapshotPath);
+                Bitmap bitmap = BitmapFactory.decodeFile(snapshotPath);
                 bitmap = addBitmap(bitmap, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round));
                 image.setImageBitmap(bitmap);
+                final Bitmap finalBitmap = bitmap;
                 image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(final View v) {
                         Intent i = new Intent(SnapShotActivity.this, SnapShotShareActivity.class);
-                        i.putExtra("snap_shot_share_path", saveImageToGallery(bitmap));
+                        i.putExtra("snap_shot_share_path", saveImageToGallery(finalBitmap, snapshotPath));
                         startActivity(i);
                         overridePendingTransition(R.anim.activity_start, R.anim.activity_finish);
                         finish();
@@ -70,15 +74,14 @@ public class SnapShotActivity extends AppCompatActivity {
     /**
      * 保存图片
      */
-    public String saveImageToGallery(Bitmap bmp) {
-        String fileName = System.currentTimeMillis() + ".jpeg";
-        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
+    public String saveImageToGallery(Bitmap bmp, String path) {
+        File file = new File(path);
         try {
             FileOutputStream fos = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
             fos.close();
-            System.out.println("AbsPath:" + file.getAbsolutePath() + " CanPath:" + file.getCanonicalPath());
+            Log.e("snapshot:", "AbsPath:" + file.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
         }
