@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -33,7 +34,14 @@ public class SnapShotShareActivity extends Activity {
     }
 
     public void setShareImageFilePath(String path) {
-        Bitmap bitmap = ImageUtil.getShareBitmap(BitmapFactory.decodeFile(path));
+        if (TextUtils.isEmpty(path)) {
+            finish();
+        }
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        if (bitmap == null) {
+            finish();
+        }
+        bitmap = ImageUtil.getShareBitmap(bitmap);
         ImageUtil.saveImageToGallery(bitmap, path);
         shareImage.setImageURI(Uri.parse(path));
     }

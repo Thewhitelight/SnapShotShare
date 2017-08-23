@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,10 +43,16 @@ public class SnapShotActivity extends AppCompatActivity {
         setContentView(view);
         final ImageView image = (ImageView) findViewById(R.id.snap_shot_image);
         final String snapshotPath = getIntent().getStringExtra("snapshot_path");
+        if (TextUtils.isEmpty(snapshotPath)) {
+            finish();
+        }
         new Handler().postDelayed(new Runnable() {//fix 魅蓝note resolveUri failed on bad bitmap uri
             @Override
             public void run() {
                 Bitmap bitmap = BitmapFactory.decodeFile(snapshotPath);
+                if (bitmap == null) {
+                    finish();
+                }
                 bitmap = ImageUtil.addBitmap(bitmap, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round));
                 image.setImageBitmap(bitmap);
                 final Bitmap finalBitmap = bitmap;
