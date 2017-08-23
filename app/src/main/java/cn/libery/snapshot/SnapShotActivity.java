@@ -46,14 +46,14 @@ public class SnapShotActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Bitmap bitmap = BitmapFactory.decodeFile(snapshotPath);
-                bitmap = addBitmap(bitmap, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round));
+                bitmap = ImageUtil.addBitmap(bitmap, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round));
                 image.setImageBitmap(bitmap);
                 final Bitmap finalBitmap = bitmap;
                 image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(final View v) {
                         Intent i = new Intent(SnapShotActivity.this, SnapShotShareActivity.class);
-                        i.putExtra("snap_shot_share_path", saveImageToGallery(finalBitmap, snapshotPath));
+                        i.putExtra("snap_shot_share_path", ImageUtil.saveImageToGallery(finalBitmap, snapshotPath));
                         startActivity(i);
                         overridePendingTransition(R.anim.activity_start, R.anim.activity_finish);
                         finish();
@@ -69,44 +69,6 @@ public class SnapShotActivity extends AppCompatActivity {
         });
         mHandler = new CountDownHandler(this);
         mHandler.sendEmptyMessageDelayed(MSG_WHAT, 5000);
-    }
-
-    /**
-     * 保存图片
-     */
-    public String saveImageToGallery(Bitmap bmp, String path) {
-        File file = new File(path);
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
-            fos.close();
-            Log.e("snapshot:", "AbsPath:" + file.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return file.getAbsolutePath();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mHandler.removeMessages(MSG_WHAT);
-    }
-
-    /**
-     * 合成一张图片
-     */
-    private Bitmap addBitmap(Bitmap first, Bitmap second) {
-        if (first == null || second == null) return null;
-        int width = Math.max(first.getWidth(), second.getWidth());
-        int height = first.getHeight() + second.getHeight();
-        Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(result);
-        canvas.drawColor(Color.WHITE);
-        canvas.drawBitmap(first, 0, 0, null);
-        canvas.drawBitmap(second, 0, first.getHeight(), null);
-        return result;
     }
 
     private static class CountDownHandler extends Handler {

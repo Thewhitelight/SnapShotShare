@@ -1,6 +1,8 @@
 package cn.libery.snapshot;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -31,6 +33,8 @@ public class SnapShotShareActivity extends Activity {
     }
 
     public void setShareImageFilePath(String path) {
+        Bitmap bitmap = ImageUtil.getShareBitmap(BitmapFactory.decodeFile(path));
+        ImageUtil.saveImageToGallery(bitmap, path);
         shareImage.setImageURI(Uri.parse(path));
     }
 
