@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 
 /**
@@ -105,12 +106,14 @@ public class SnapShotListenerManager {
 
             // 获取各列的索引
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-
+            int dateTakenIndex = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATE_TAKEN);
             // 获取行数据
             String data = cursor.getString(dataIndex);
-
+            long dateTaken = cursor.getLong(dateTakenIndex);
             // 处理获取到的第一行数据
-            handleMediaRowData(data);
+            if (checkTime(dateTaken)) {
+                handleMediaRowData(data);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,11 +124,21 @@ public class SnapShotListenerManager {
         }
     }
 
+    private boolean checkTime(long dateTaken) {
+        return System.currentTimeMillis() - dateTaken * 1000 < 1500;
+    }
+
+    private String mSnapshotImagePath;
+
     /**
      * 处理监听到的资源
      */
     private void handleMediaRowData(String data) {
         if (checkScreenShot(data)) {
+            if (data.equals(mSnapshotImagePath)) {
+                return;
+            }
+            mSnapshotImagePath = data;
             Log.d(TAG, data);
             Intent intent = new Intent(mContext, SnapShotActivity.class);
             intent.putExtra("snapshot_path", data);
