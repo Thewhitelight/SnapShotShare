@@ -131,13 +131,13 @@ public class SnapShotListenerManager {
     }
 
     /**
-     * 检查是否大于当前时间两秒，是则舍弃，反之亦然
+     * 检查是否大于当前时间五秒(兼容小米)，是则舍弃，反之亦然
      *
      * @param dateTime 图片保存时间
      * @return true 符合预期
      */
     private boolean checkTime(final long dateTime) {
-        return System.currentTimeMillis() - dateTime < 2 * 1000;
+        return System.currentTimeMillis() - dateTime < 5 * 1000;
     }
 
     private String originPath;
