@@ -4,27 +4,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.logging.Logger;
 
 /**
  * Created by Libery on 2017/7/17.
@@ -33,7 +23,6 @@ import java.util.logging.Logger;
 
 public class SnapShotActivity extends AppCompatActivity {
 
-    private CountDownHandler mHandler;
     private static final int MSG_WHAT = 1;
 
     @Override
@@ -46,7 +35,8 @@ public class SnapShotActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(snapshotPath)) {
             finish();
         }
-        new Handler().postDelayed(new Runnable() {//fix 魅蓝note resolveUri failed on bad bitmap uri
+        //fix 魅蓝note resolveUri failed on bad bitmap uri
+        view.postDelayed(new Runnable() {
             @Override
             public void run() {
                 Bitmap bitmap = BitmapFactory.decodeFile(snapshotPath);
@@ -74,8 +64,8 @@ public class SnapShotActivity extends AppCompatActivity {
                 finish();
             }
         });
-        mHandler = new CountDownHandler(this);
-        mHandler.sendEmptyMessageDelayed(MSG_WHAT, 5000);
+        CountDownHandler handler = new CountDownHandler(this);
+        handler.sendEmptyMessageDelayed(MSG_WHAT, 5000);
     }
 
     private static class CountDownHandler extends Handler {
@@ -90,7 +80,9 @@ public class SnapShotActivity extends AppCompatActivity {
         public void handleMessage(final Message msg) {
             super.handleMessage(msg);
             Activity act = mReference.get();
-            act.finish();
+            if (act != null) {
+                act.finish();
+            }
         }
     }
 

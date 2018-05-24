@@ -7,8 +7,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
+
 
 /**
  * Created by Libery on 2017/7/17.
@@ -18,7 +18,7 @@ import android.util.Log;
 public class SnapShotListenerManager {
 
     private Context mContext;
-    private static final String TAG = "SnapShotListenerManager";
+    public static final String TAG = "SnapShotListenerManager";
 
     private static final String[] KEYWORDS = {
             "screenshot", "screenshots", "screen_shot", "screen-shot", "screen shot",
@@ -53,7 +53,9 @@ public class SnapShotListenerManager {
      * 初始化
      */
     private void initManager() {
-        if (mContext == null) return;
+        if (mContext == null) {
+            return;
+        }
         final Handler handler = new Handler(mContext.getMainLooper());
         mInternalObserver = new MediaContentObserver(MediaStore.Images.Media.INTERNAL_CONTENT_URI, handler);
         mExternalObserver = new MediaContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, handler);
@@ -63,7 +65,9 @@ public class SnapShotListenerManager {
      * 添加监听
      */
     public void startListener() {
-        if (mContext == null) return;
+        if (mContext == null) {
+            return;
+        }
         mContext.getContentResolver().registerContentObserver(
                 MediaStore.Images.Media.INTERNAL_CONTENT_URI,
                 false,
@@ -80,7 +84,9 @@ public class SnapShotListenerManager {
      * 注销监听
      */
     public void stopListener() {
-        if (mContext == null) return;
+        if (mContext == null) {
+            return;
+        }
         mContext.getContentResolver().unregisterContentObserver(mInternalObserver);
         mContext.getContentResolver().unregisterContentObserver(mExternalObserver);
     }
@@ -106,12 +112,12 @@ public class SnapShotListenerManager {
 
             // 获取各列的索引
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            int dateTakenIndex = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATE_TAKEN);
+            int dataData = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATE_TAKEN);
             // 获取行数据
             String data = cursor.getString(dataIndex);
-            long dateTaken = cursor.getLong(dateTakenIndex);
+            long dateTime = cursor.getLong(dataData);
             // 处理获取到的第一行数据
-            if (checkTime(dateTaken)) {
+            if (checkTime(dateTime)) {
                 handleMediaRowData(data);
             }
 
@@ -124,21 +130,28 @@ public class SnapShotListenerManager {
         }
     }
 
-    private boolean checkTime(long dateTaken) {
-        return System.currentTimeMillis() - dateTaken * 1000 < 1500;
+    /**
+     * 检查是否大于当前时间两秒，是则舍弃，反之亦然
+     *
+     * @param dateTime 图片保存时间
+     * @return true 符合预期
+     */
+    private boolean checkTime(final long dateTime) {
+        return System.currentTimeMillis() - dateTime < 2 * 1000;
     }
 
-    private String mSnapshotImagePath;
+    private String originPath;
 
     /**
      * 处理监听到的资源
      */
     private void handleMediaRowData(String data) {
         if (checkScreenShot(data)) {
-            if (data.equals(mSnapshotImagePath)) {
+            if (data.equals(originPath)) {
                 return;
             }
-            mSnapshotImagePath = data;
+            originPath = data;
+
             Log.d(TAG, data);
             Intent intent = new Intent(mContext, SnapShotActivity.class);
             intent.putExtra("snapshot_path", data);

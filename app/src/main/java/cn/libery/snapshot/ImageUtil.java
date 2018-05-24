@@ -54,17 +54,21 @@ public class ImageUtil {
      */
     public static Bitmap addBitmap(Bitmap first, Bitmap second) {
         if (first == null || second == null) return null;
-        int firstWidth = (int) (first.getWidth() * 1.0);
-        int firstHeight = (int) (first.getHeight() * 0.93);
-        int totalHeight = firstHeight + second.getHeight();
-        second = zoomBitmap(second, firstWidth, second.getHeight());
-        Bitmap result = Bitmap.createBitmap(firstWidth, totalHeight, Bitmap.Config.RGB_565);
-        Canvas canvas = new Canvas(result);
-        canvas.drawColor(Color.WHITE);
-        first = zoomBitmap(first, firstWidth, firstHeight);
-        canvas.drawBitmap(first, 0, 0, null);
-        canvas.drawBitmap(second, 0, firstHeight, null);
-        return result;
+        try {
+            int firstWidth = (int) (first.getWidth() * 1.0);
+            int firstHeight = (int) (first.getHeight() * 0.93);
+            int totalHeight = firstHeight + second.getHeight();
+            second = zoomBitmap(second, firstWidth, second.getHeight());
+            Bitmap result = Bitmap.createBitmap(firstWidth, totalHeight, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(result);
+            canvas.drawColor(Color.WHITE);
+            first = zoomBitmap(first, firstWidth, firstHeight);
+            canvas.drawBitmap(first, 0, 0, null);
+            canvas.drawBitmap(second, 0, firstHeight, null);
+            return result;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 
@@ -73,15 +77,19 @@ public class ImageUtil {
      */
     public static Bitmap getShareBitmap(Bitmap snapshot) {
         if (snapshot == null) return null;
-        int originWidth = snapshot.getWidth();
-        int originHeight = snapshot.getHeight();
-        Bitmap result = Bitmap.createBitmap(originWidth, originHeight, Bitmap.Config.RGB_565);
-        Canvas canvas = new Canvas(result);
-        canvas.drawColor(Color.BLACK);
-        int width = (int) (originWidth * 0.84);
-        int height = (int) (originHeight * 0.93);
-        snapshot = zoomBitmap(snapshot, width, height);
-        canvas.drawBitmap(snapshot, (originWidth - width) / 2, (originHeight - height) / 2, null);
-        return result;
+        try {
+            int originWidth = snapshot.getWidth();
+            int originHeight = snapshot.getHeight();
+            Bitmap result = Bitmap.createBitmap(originWidth, originHeight, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(result);
+            canvas.drawColor(Color.BLACK);
+            int width = (int) (originWidth * 0.84);
+            int height = (int) (originHeight * 0.93);
+            snapshot = zoomBitmap(snapshot, width, height);
+            canvas.drawBitmap(snapshot, (originWidth - width) / 2, (originHeight - height) / 2, null);
+            return result;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
